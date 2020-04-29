@@ -41,9 +41,9 @@ cleanDataset = function(flight.data){
   flight.data$CANCELLED = as.factor(flight.data$CANCELLED)
   flight.data$DIVERTED = as.factor(flight.data$DIVERTED)
   
-  # Removing any rows with NAs
-  # flight.data = complete.cases(flight.data)
-  
+  # Removing any rows with incomplete data
+  flight.data = flight.data[which(complete.cases(flight.data) == TRUE),]
+
   return(flight.data)
 }
 
