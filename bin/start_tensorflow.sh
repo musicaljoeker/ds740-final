@@ -11,4 +11,11 @@ docker run -it -d \
 docker exec -u root -it tensorflow apt update
 docker exec -u root -it tensorflow apt install git -y
 
+# installing tensorflow docs
+docker exec -it tensorflow pip install git+https://github.com/tensorflow/docs
+
+# installing other python requirements
 docker exec -it tensorflow pip install -r /tf/final/tensorflow/requirements.txt
+
+# showing jupyter connection info
+docker logs tensorflow
