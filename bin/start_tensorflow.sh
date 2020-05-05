@@ -14,6 +14,9 @@ docker exec -u root -it tensorflow apt install git -y
 # installing tensorflow docs
 docker exec -it tensorflow pip install git+https://github.com/tensorflow/docs
 
+# installing pandoc and dependencies for PDF export
+docker exec -it -u root tensorflow apt install pandoc texlive-xetex texlive-fonts-recommended texlive-generic-recommended -y
+
 # installing other python requirements
 docker exec -it tensorflow pip install -r /tf/final/tensorflow/requirements.txt
 
