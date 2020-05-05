@@ -9,37 +9,32 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Exploring the data
+## Overview
+
+The purpose of this model is to try to predict if a flight will be delayed from departure by 15 or more minutes using the [January US Flight data](https://www.kaggle.com/divyansh22/flight-delay-prediction/kernels) dataset. Given that this data is captured in the month of January 2019 and January 2020, it's reasonable to expect that this model may only accurately predict flights in January in the future. In addition, because I want to predict if a flight will be delayed by 15 or more minutes before takeoff, I will not be using data that is captured after the takeoff happens (ex. delayed by 15 or more minutes, diverted, etc.) 
+
+## Cleaning the data
+
+We'll start by cleaning the data and removing variables we won't use in our model building process. By definition of our problem, we aren't able to use variables that are recorded after the flight departs from the origin airport. As an example, we can't use the variable `ARR_DEL15` (a binary variable) which records if a flight arrived at it's destination more than 15 minutes late. In all likelyhood, this variable would be INCREDIBLY powerful in predicting if a flight departed on time (flights that arrive late, tend to depart late as well). Since this happens after the flight departs, we can't use this variable.
 
 ```{r}
 cleanDataset = function(flight.data){
   # Removing unusable variables
   keeps = c(
-    "DAY_OF_MONTH",
     "DAY_OF_WEEK",
     "OP_CARRIER",
-    "TAIL_NUM",
     "ORIGIN",
-    "DEST",
-    "DEP_TIME",
     "DEP_DEL15",
     "DEP_TIME_BLK",
-    "ARR_TIME",
-    "ARR_DEL15",
-    "CANCELLED",
-    "DIVERTED",
     "DISTANCE"
   )
   flight.data = flight.data[keeps]
   
   # Converting ints to factors
-  flight.data$DAY_OF_MONTH = as.factor(flight.data$DAY_OF_MONTH)
   flight.data$DAY_OF_WEEK = as.factor(flight.data$DAY_OF_WEEK)
   flight.data$DEP_DEL15 = as.factor(flight.data$DEP_DEL15)
   flight.data$DEP_TIME_BLK = as.factor(flight.data$DEP_TIME_BLK)
-  flight.data$ARR_DEL15 = as.factor(flight.data$ARR_DEL15)
-  flight.data$CANCELLED = as.factor(flight.data$CANCELLED)
-  flight.data$DIVERTED = as.factor(flight.data$DIVERTED)
+  flight.data$ORIGIN = as.factor(flight.data$ORIGIN)
   
   # Removing any rows with incomplete data
   flight.data = flight.data[which(complete.cases(flight.data) == TRUE),]
@@ -51,8 +46,41 @@ jan19 = read.csv('./data/Jan_2019_ontime.csv')
 jan20 = read.csv('./data/Jan_2020_ontime.csv')
 
 jan19 = cleanDataset(jan19)
+jan20 = cleanDataset(jan20)
+flights.full = merge(jan19, jan20)
+
+# making our flight sample smaller so we can build things in a reasonable amount of time
+suppressWarnings(set.seed(3, sample.kind = "Rounding")) # setting the seed
+flights = flights.full[sample(nrow(flights.full), floor(nrow(flights.full)/20)),] # taking 1/20th of the observations
+
+# clearing some space in RAM
+rm(jan19)
+rm(jan20)
 ```
 
-## First method: Logistic Regression
+## Exploring the data
 
+Looking for collineraity in plotting variables in the dataset against each other.
 
+```{r}
+pairs(flights)
+```
+
+There's lots of categorical variables, but not too many variables look like they are tending to be collinear.
+
+## Logistic Regression
+
+We'll start by creating a basic logistic regression.
+
+```{r}
+glm.basic.fit = glm(DEP_DEL15 ~ ., data=flights, family = "binomial")
+```
+
+Now let's see if we get any variance inflation factor (VIF) values that are greater than 10. If so, we should probably consider removing them.
+
+```{r}
+suppressWarnings(library(car, quietly = TRUE)) # hide warnings while loading the library
+vif(glm.basic.fit)
+```
+
+Looking the the generalized variance inflaction factor column, we see variables that have quite a high value, specifically noted in `ORIGIN` and `OP_CARRIER`. In this case thougth, we notice that these are categorical variables and the degrees of freedom are listed in the second column (Df). It is therefore more useful to take a look at the last column which accounts for the degrees of freedom relative to the GVIF. Looking there, we don't have any variables that show a value higher than 10, so we can proceed with keeping all of the variables in the dataset.
