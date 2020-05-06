@@ -23,6 +23,6 @@ Because the data for this project is large (~148MB), and R operates on a single 
 
 # Results
 
-Using Python/Tensorflow, I was able to use a Neural Network that predicted if a flight was delayed ~84% of the time. With R, I was reporting an accuracy of ~60% with logistic regression. The lower numbers in R could be tied the smaller use of data due to compute time restrictions, but this could also mean logistic regression doesn't work as well to solve this problem.
+Using Python/Tensorflow, I was able to use a Neural Network that predicted if a flight was delayed ~84% of the time. With R, I was reporting an accuracy of ~96% with logistic regression.
 
 This analysis could likely be improved if we had access to data around maintenance crew on the flight operations line. It would be helpful to have metrics around the average time it takes for a maintenance issue to be resolved.
