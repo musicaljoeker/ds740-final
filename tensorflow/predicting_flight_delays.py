@@ -58,7 +58,7 @@ df = df.dropna()
 nrows_rm_na = df.shape[0]
 nrows_org - nrows_rm_na # let's see how many rows we lost
 
-"""26100 rows removed is not bad. This leaves plenty (over 1 million) of complete data for us to work with.
+"""26100 rows removed is not bad. This leaves plenty (over 1 million rows) of complete data for us to work with.
 
 Now let's remove the columns from the dataset that don't provide much value to our purposes.
 """
